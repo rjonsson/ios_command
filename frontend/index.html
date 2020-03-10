@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<title>Switch communication</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="script.js"></script>
+    </head>
+    <body>
+		<div class=wrapper>
+
+			<div class=input_box>
+			  <input id="inputHost" type="text">
+			  <select id="inputCmd">
+				<option value="sh_int_stat">show interfaces status</option>
+				<option value="sh_cdp_neigh">show cdp neighbors</option>
+				<option value="sh_pow_inline">show power inline</option>
+			  </select>
+			  <input id="okButton" type="button" value="GO!"/>
+			</div>
+
+			<div class=output_box>
+				  <pre id="outputPre"></pre>
+			</div>
+
+		  </div>
+    </body>
+</html>

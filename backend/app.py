@@ -9,20 +9,15 @@ app = Flask(__name__)
 CORS(app)
 
 
-
 def get_credentials():
-    #credentials = {}
     with open('credentials.conf', 'r') as f:
         for line in f:
             user, pwd = line.strip().split(':')
-            #credentials[user] = pwd
     return (user, pwd)
 
 
-def connect(host_address):
-
+def connect(host_address, ios_command='show interfaces status'):
     (user, pwd) = get_credentials()
-
     device = {
         'ip': host_address,
         'port': 22,
@@ -31,12 +26,13 @@ def connect(host_address):
         'password': pwd
     }
 
-    session = ConnectHandler(**device)
-    results = session.send_command('show interfaces status')
-    session.disconnect()
+    with ConnectHandler(**device) as session:
+        results = session.send_command(ios_command)
+        session.disconnect()
 
     results = re.sub(" Gi", "\nGi", results)
     return results
+
 
 def test_connection(host_address):
     try:
@@ -48,17 +44,18 @@ def test_connection(host_address):
     if keep_going:
         try:
             subprocess.check_output(["ping", "-c", "1", host_address])
-            return True                      
+            return 'Reachable'
         except subprocess.CalledProcessError:
-            return 'No echo response from host'
+            return 'Not reachable'
 
 
 @app.route('/api/<string:host_address>')
 def get(host_address):
     results = test_connection(host_address)
-    if results == True:
-        results = connect(host_address)
-    return results
+    if not results == 'Reachable':
+        return results
+    return connect(host_address)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
